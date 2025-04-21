@@ -15,7 +15,8 @@ class Device(ABC):
     def take_photo(self) -> ImageDTO:
         raise NotImplementedError
     
+    @property
     @abstractmethod
-    def get_name(self) -> str:
+    def name(self) -> str:
         raise NotImplementedError
 
