@@ -33,6 +33,9 @@ class Server:
     def take_photos(self) -> Optional[str]:
         device_images: list[DeviceImageDTO] = []
 
+        for _, device in self.attached_devices.items():
+            device.prepare()
+
         with ThreadPoolExecutor() as executor:
             futures = {
                 executor.submit(device.take_photo): name 
@@ -87,12 +90,13 @@ class Server:
 
 
 def main():
-    kvadra = Kvadra("kvadra", 2)
+    kvadra = Kvadra("kvadra", 1.2)
     camera = MockSony("camera")
 
     server = Server()
     server.attach(kvadra)
     server.attach(camera)
+    
     server.take_photos()
     
 
