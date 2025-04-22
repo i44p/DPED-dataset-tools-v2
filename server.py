@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from devices.device import Device, ImageDTO
 from devices.kvadra import Kvadra
-from devices.camera import Camera
+from devices.sony import MockSony
 
 log = logging.getLogger(__name__)
 
