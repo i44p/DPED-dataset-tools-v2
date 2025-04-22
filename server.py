@@ -1,7 +1,6 @@
 import os
 import io
 import logging
-from uuid import uuid4
 from typing import Optional
 from dataclasses import fields
 from dataclasses import dataclass
@@ -21,7 +20,8 @@ class DeviceImageDTO:
 
 
 class Server:
-    def __init__(self):
+    def __init__(self, dataset_path: str ="dataset/"):
+        self.dataset_path = dataset_path
         self.attached_devices: dict[str, Device] = {}
 
     def attach(self, device: Device) -> None:
@@ -51,21 +51,32 @@ class Server:
             return self._safe_photo_storage(device_images)
     
     def _safe_photo_storage(self, device_images: list[DeviceImageDTO]) -> Optional[str]:
-        photo_id = str(uuid4())
+        photo_id = "00000"
+        temp_file = f"{self.dataset_path}.temp"
+        if os.path.exists(temp_file):
+            with open(temp_file, "r") as file:
+                content = int(file.read())
+                content += 1
+                photo_id = f"{content:05d}"
 
         for device in device_images:
             if all( [getattr(device.image, field.name) is None for field in fields(device.image)]):
                 log.error("Device `%s` returned an empty image object.", device.device_name)
                 return None
-    
-            os.makedirs(device.device_name, exist_ok=True)
+            
+            directory_path = f"{self.dataset_path}{device.device_name}"
+
+            os.makedirs(directory_path, exist_ok=True)
             
             for field in fields(device.image):
                 image_bytes = getattr(device.image, field.name)
 
                 if image_bytes is not None:
                     file_name = f"{photo_id}.{field.name}"
-                    self._save_photo(image_bytes, file_name, device.device_name)
+                    self._save_photo(image_bytes, file_name, directory_path)
+
+        with open(temp_file, "w") as file:
+            file.write(photo_id)
 
         return photo_id
 
