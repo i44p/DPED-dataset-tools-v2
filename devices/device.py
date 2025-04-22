@@ -12,6 +12,10 @@ class ImageDTO:
 
 class Device(ABC):
     @abstractmethod
+    def prepare(self) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
     def take_photo(self) -> ImageDTO:
         raise NotImplementedError
     
