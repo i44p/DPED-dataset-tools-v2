@@ -9,12 +9,14 @@ import adbutils
 class Kvadra(Device):
     def __init__(self,
                  name: str,
+                 delay: float,
                  *,
                  host: str = "127.0.0.1",
                  port: int = 5037
                  ) -> None:
         super().__init__()
         self._name = name
+        self._delay = delay
 
         self._adb_client = adbutils.AdbClient(host=host, port=port)
 
@@ -22,8 +24,20 @@ class Kvadra(Device):
 
         self._client = scrcpy.Client(device=self.kvadra)
         self._client.start(threaded=True)
+    
+    def prepare(self) -> None:
+        width, height = self._client.resolution if self._client.resolution else (1920, 1080)
+
+        mid_x = width // 2
+        mid_y = height // 2
+
+        self._client.control.touch(mid_x, mid_y, action=scrcpy.ACTION_DOWN)
+        time.sleep(0.1)
+        self._client.control.touch(mid_x, mid_y, action=scrcpy.ACTION_UP)
+        time.sleep(2)
 
     def take_photo(self) -> ImageDTO:
+        time.sleep(self._delay)
         self._client.control.keycode(scrcpy.KEYCODE_CAMERA)
         time.sleep(2)
         photo = self._pull_photo()
