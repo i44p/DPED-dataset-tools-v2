@@ -61,6 +61,12 @@ echo "getobjectinfo"
 echo "getobject"
 ./control getobject 0xffffc001 $@ --of=shot.jpg
 
+sleep 1
+echo "getobjectinfo"
+./control recv --op=0x1008 --p1=0xffffc001 $@
+echo "getobject"
+./control getobject 0xffffc001 $@ --of=shot.arw
+
 sleep 5
 
 cd $PREV_DIR

@@ -47,10 +47,13 @@ class MockSony(Device):
 
         with open("./third_party/sony-camera-example-v2-linux/out/bin/shot.jpg", "rb") as f:
             jpg = io.BytesIO(f.read())
+        
+        with open("./third_party/sony-camera-example-v2-linux/out/bin/shot.arw", "rb") as f:
+            raw = io.BytesIO(f.read())
 
         photo = ImageDTO(
             jpeg=FileDTO(data=jpg, extension="jpg"),
-            raw=None
+            raw=FileDTO(data=raw, extension="raw")
         )
         return photo
     
