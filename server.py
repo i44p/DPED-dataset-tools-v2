@@ -74,7 +74,7 @@ class Server:
             
             directory_path = self.dataset_path / device.device_name
 
-            directory_path.mkdir(exist_ok=True)
+            directory_path.mkdir(exist_ok=True, parents=True)
             
             for photo_format in fields(device.image):
                 photo = getattr(device.image, photo_format.name)
