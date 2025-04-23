@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from devices.device import Device, ImageDTO
 from devices.kvadra import Kvadra
-from devices.sony import MockSony
+from devices.sony import Sony
 
 log = logging.getLogger(__name__)
 
@@ -96,7 +96,7 @@ class Server:
 
 def main():
     kvadra = Kvadra("kvadra", 1.2)
-    camera = MockSony("camera", 0.0)
+    camera = Sony("camera", 0.0)
 
     server = Server()
     server.attach(kvadra)

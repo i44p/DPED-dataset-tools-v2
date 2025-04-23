@@ -6,7 +6,7 @@ import subprocess
 from .device import Device, ImageDTO, FileDTO
 
 
-class MockSony(Device):
+class Sony(Device):
     def __init__(self,
                  name: str,
                  delay: float,
