@@ -102,7 +102,9 @@ def main():
     server.attach(kvadra)
     server.attach(camera)
     
-    server.take_photos()
+    while True:
+        input("Введи что-нибудь: ")
+        server.take_photos()
     
 
 if __name__ == '__main__':
