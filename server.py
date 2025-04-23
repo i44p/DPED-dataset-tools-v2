@@ -33,8 +33,14 @@ class Server:
     def take_photos(self) -> Optional[str]:
         device_images: list[DeviceImageDTO] = []
 
-        for _, device in self.attached_devices.items():
-            device.prepare()
+        with ThreadPoolExecutor() as executor:
+            futures = {
+                executor.submit(device.prepare): name 
+                for name, device in self.attached_devices.items()
+            }
+            for future in as_completed(futures):
+                print(f"Устройство: `{futures[future]}` сфокусированно")
+
 
         with ThreadPoolExecutor() as executor:
             futures = {
