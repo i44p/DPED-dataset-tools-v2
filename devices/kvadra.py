@@ -58,7 +58,7 @@ class Kvadra(Device):
         
         return ImageDTO(
             jpeg=FileDTO(data=jpg, extension="jpg") if jpg else None,
-            raw=FileDTO(data=raw, extension="jpg") if raw else None
+            raw=FileDTO(data=raw, extension="dng") if raw else None
         )
 
 
