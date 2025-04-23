@@ -79,7 +79,7 @@ class Server:
             for photo_format in fields(device.image):
                 photo = getattr(device.image, photo_format.name)
 
-                if photo.data is not None:
+                if photo and photo.data:
                     file_name = f"{photo_id:05d}.{photo.extension}"
                     self._save_photo(photo.data, file_name, directory_path)
 
