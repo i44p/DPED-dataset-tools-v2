@@ -1,7 +1,10 @@
-from .device import Device, ImageDTO
 import io
 import os
+import time
 import subprocess
+
+from .device import Device, ImageDTO
+
 
 class MockSony(Device):
     def __init__(self,
@@ -13,6 +16,7 @@ class MockSony(Device):
         super().__init__()
         #os.environ["LD_LIBRARY_PATH"] = "./third_party/sony-camera-example-v2-linux/out/lib"
         self._name = name
+        self._delay = delay
         self._usb_device_id = usb_device_id
 
         self._bus = 0
@@ -38,7 +42,7 @@ class MockSony(Device):
         os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/1_focus_camera.sh --bus={self._bus} --dev={self._dev}")
 
     def take_photo(self) -> ImageDTO:
-        #time.sleep()
+        time.sleep(self._delay)
         os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/3_take_photo.sh --bus={self._bus} --dev={self._dev}")
 
         with open("./third_party/sony-camera-example-v2-linux/out/bin/shot.jpg", "rb") as f:
@@ -51,8 +55,7 @@ class MockSony(Device):
         return photo
     
     def __del__(self) -> None:
-        os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/4_exit_session.sh --bus={self._bus} --dev={self._dev}")
-        
+        os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/4_exit_session.sh --bus={self._bus} --dev={self._dev}")        
 
     @property
     def name(self) -> str:

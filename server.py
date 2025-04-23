@@ -96,7 +96,7 @@ class Server:
 
 def main():
     kvadra = Kvadra("kvadra", 1.2)
-    camera = MockSony("camera")
+    camera = MockSony("camera", 0.0)
 
     server = Server()
     server.attach(kvadra)
