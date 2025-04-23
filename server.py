@@ -1,9 +1,8 @@
-import os
 import io
 import logging
 from typing import Optional
-from dataclasses import fields
-from dataclasses import dataclass
+from dataclasses import fields, dataclass
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from devices.device import Device, ImageDTO
@@ -20,8 +19,8 @@ class DeviceImageDTO:
 
 
 class Server:
-    def __init__(self, dataset_path: str ="dataset/"):
-        self.dataset_path = dataset_path
+    def __init__(self, dataset_path: Path | str = "dataset/"):
+        self.dataset_path = Path(dataset_path)
         self.attached_devices: dict[str, Device] = {}
 
     def attach(self, device: Device) -> None:
@@ -30,7 +29,7 @@ class Server:
     def detach(self, device_name: str) -> Device | None:
         return self.attached_devices.pop(device_name)
     
-    def take_photos(self) -> Optional[str]:
+    def take_photos(self) -> Optional[int]:
         device_images: list[DeviceImageDTO] = []
 
         with ThreadPoolExecutor() as executor:
@@ -59,39 +58,39 @@ class Server:
                 
             return self._safe_photo_storage(device_images)
     
-    def _safe_photo_storage(self, device_images: list[DeviceImageDTO]) -> Optional[str]:
-        photo_id = "00000"
-        temp_file = f"{self.dataset_path}.temp"
-        if os.path.exists(temp_file):
-            with open(temp_file, "r") as file:
-                content = int(file.read())
-                content += 1
-                photo_id = f"{content:05d}"
+    def _safe_photo_storage(self, device_images: list[DeviceImageDTO]) -> Optional[int]:
+        photo_id = 0
+        last_photo_id_fp = self.dataset_path / "last_photo_id"
+        if last_photo_id_fp.exists():
+            with open(last_photo_id_fp, "r") as file:
+                photo_id = int(file.read().strip())
 
+        # adding a new image pair to the dataset
+        photo_id += 1
         for device in device_images:
             if all( [getattr(device.image, field.name) is None for field in fields(device.image)]):
                 log.error("Device `%s` returned an empty image object.", device.device_name)
                 return None
             
-            directory_path = f"{self.dataset_path}{device.device_name}"
+            directory_path = self.dataset_path / device.device_name
 
-            os.makedirs(directory_path, exist_ok=True)
+            directory_path.mkdir(exist_ok=True)
             
             for field in fields(device.image):
                 image_bytes = getattr(device.image, field.name)
 
                 if image_bytes is not None:
-                    file_name = f"{photo_id}.{field.name}"
+                    file_name = f"{photo_id:05d}.{field.name}"
                     self._save_photo(image_bytes, file_name, directory_path)
 
-        with open(temp_file, "w") as file:
-            file.write(photo_id)
+        with open(last_photo_id_fp, "w") as file:
+            file.write(str(photo_id))
 
         return photo_id
 
-    def _save_photo(self, img: io.BytesIO, name: str, path: str) -> None:
+    def _save_photo(self, img: io.BytesIO, name: str, path: Path) -> None:
         img.seek(0)
-        with open(os.path.join(path, name), "wb") as file:
+        with open(path / name, "wb") as file:
             file.write(img.read())
 
 
