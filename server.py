@@ -76,12 +76,12 @@ class Server:
 
             directory_path.mkdir(exist_ok=True)
             
-            for field in fields(device.image):
-                image_bytes = getattr(device.image, field.name)
+            for photo_format in fields(device.image):
+                photo = getattr(device.image, photo_format.name)
 
-                if image_bytes is not None:
-                    file_name = f"{photo_id:05d}.{field.name}"
-                    self._save_photo(image_bytes, file_name, directory_path)
+                if photo.data is not None:
+                    file_name = f"{photo_id:05d}.{photo.extension}"
+                    self._save_photo(photo.data, file_name, directory_path)
 
         with open(last_photo_id_fp, "w") as file:
             file.write(str(photo_id))

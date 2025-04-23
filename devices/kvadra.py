@@ -1,4 +1,4 @@
-from .device import Device, ImageDTO
+from .device import Device, ImageDTO, FileDTO
 import io
 from typing import Optional
 import time
@@ -57,8 +57,8 @@ class Kvadra(Device):
                 raw = io.BytesIO(self.kvadra.sync.read_bytes(f"/sdcard/DCIM/Camera/{name}"))
         
         return ImageDTO(
-            jpeg=jpg,
-            raw=raw
+            jpeg=FileDTO(data=jpg, extension="jpg") if jpg else None,
+            raw=FileDTO(data=raw, extension="jpg") if raw else None
         )
 
 

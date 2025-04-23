@@ -5,10 +5,15 @@ from typing import Optional
 
 
 @dataclass
-class ImageDTO:
-    jpeg: Optional[io.BytesIO]
-    raw: Optional[io.BytesIO]
+class FileDTO:
+    data: io.BytesIO
+    extension: str
 
+
+@dataclass
+class ImageDTO:
+    jpeg: Optional[FileDTO]
+    raw: Optional[FileDTO]
 
 class Device(ABC):
     @abstractmethod

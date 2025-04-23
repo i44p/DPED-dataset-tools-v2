@@ -3,7 +3,7 @@ import os
 import time
 import subprocess
 
-from .device import Device, ImageDTO
+from .device import Device, ImageDTO, FileDTO
 
 
 class MockSony(Device):
@@ -49,7 +49,7 @@ class MockSony(Device):
             jpg = io.BytesIO(f.read())
 
         photo = ImageDTO(
-            jpeg=jpg,
+            jpeg=FileDTO(data=jpg, extension="jpg"),
             raw=None
         )
         return photo
