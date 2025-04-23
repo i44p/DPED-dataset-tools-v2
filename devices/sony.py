@@ -27,7 +27,7 @@ class MockSony(Device):
         self._bus = self.__sony_params.bus
         self._dev = self.__sony_params.dev
 
-        os.system(f"sh ./third_party/sony-camera-example-v2-linux/out/bin/0_open_session.sh --bus={self._bus} --dev={self._dev}")
+        os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/0_open_session.sh --bus={self._bus} --dev={self._dev}")
 
     def _get_sony_params(self) -> SonyParamsDTO:
         # Выполняем команду lsusb и фильтруем результаты с помощью grep
@@ -53,11 +53,11 @@ class MockSony(Device):
 
 
     def prepare(self) -> None:
-        os.system(f"sh ./third_party/sony-camera-example-v2-linux/out/bin/1_focus_camera.sh --bus={self._bus} --dev={self._dev}")
+        os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/1_focus_camera.sh --bus={self._bus} --dev={self._dev}")
 
     def take_photo(self) -> ImageDTO:
         #time.sleep()
-        os.system(f"sh ./third_party/sony-camera-example-v2-linux/out/bin/3_take_photo.sh --bus={self._bus} --dev={self._dev}")
+        os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/3_take_photo.sh --bus={self._bus} --dev={self._dev}")
 
         with open("./third_party/sony-camera-example-v2-linux/out/bin/shot.jpg", "rb") as f:
             jpg = io.BytesIO(f.read())
@@ -69,7 +69,7 @@ class MockSony(Device):
         return photo
     
     def __del__(self) -> None:
-        os.system(f"sh ./third_party/sony-camera-example-v2-linux/out/bin/4_exit_session.sh --bus={self._bus} --dev={self._dev}")
+        os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/4_exit_session.sh --bus={self._bus} --dev={self._dev}")
         
 
     @property
