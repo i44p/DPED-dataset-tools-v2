@@ -2,55 +2,37 @@ from .device import Device, ImageDTO
 import io
 import os
 import subprocess
-from dataclasses import dataclass
-import re
-
-
-@dataclass
-class SonyParamsDTO:
-    bus: int
-    dev: int
-
 
 class MockSony(Device):
     def __init__(self,
                  name: str,
-                 *args
+                 delay: float,
+                 *args,
+                 usb_device_id: str = '054c:0994'
                  ) -> None:
         super().__init__()
         #os.environ["LD_LIBRARY_PATH"] = "./third_party/sony-camera-example-v2-linux/out/lib"
         self._name = name
-        
-        self.__sony_params = self._get_sony_params()
+        self._usb_device_id = usb_device_id
 
-        print("test", self.__sony_params)
-        self._bus = self.__sony_params.bus
-        self._dev = self.__sony_params.dev
+        self._bus = 0
+        self._dev = 0
+        self._autodetect_usb_device()
 
         os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/0_open_session.sh --bus={self._bus} --dev={self._dev}")
 
-    def _get_sony_params(self) -> SonyParamsDTO:
-        # Выполняем команду lsusb и фильтруем результаты с помощью grep
+    def _run(self, *args) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(args, capture_output=True, text=True, check=True)
+
+    def _autodetect_usb_device(self) -> None:
         try:
-            result = subprocess.run(['lsusb'], capture_output=True, text=True, check=True)
-            sony_devices = [line for line in result.stdout.splitlines() if 'Sony' in line]
+            device_entry = self._run('lsusb', '-d', self._usb_device_id).stdout.splitlines()[0]
+            _, bus, _, dev, *_ = device_entry.split()
 
-            for device in sony_devices:
-                print(device)
-                bus_match = re.search(r"Bus (\d+)", device)
-                device_match = re.search(r"Device (\d+):", device)
-
-                if not bus_match or not device_match:
-                    raise ValueError("Failed getting sony params")
-                sony_params = SonyParamsDTO(
-                    bus=int(bus_match.group(1)),
-                    dev=int(device_match.group(1))
-                )
-                return sony_params
+            self._bus = int(bus)
+            self._dev = int(dev.rstrip(':'))
         except subprocess.CalledProcessError as e:
             print(f"Ошибка при выполнении команды: {e}") # Todo LOG
-            
-
 
     def prepare(self) -> None:
         os.system(f"bash ./third_party/sony-camera-example-v2-linux/out/bin/1_focus_camera.sh --bus={self._bus} --dev={self._dev}")
